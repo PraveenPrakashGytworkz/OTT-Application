@@ -33,8 +33,9 @@ router.post("/api/v1/upload-video",upload.single('video'),async (req : any,res :
 
         const params = {
             Bucket: process.env.BUCKET,
-            Key: `${username}/${movieName}`,
+            Key: `${username}/${file.originalname}`,
             Body: file_data.buffer,
+            ContentType: ".mp4"
         };
         let videoURL;
         const s3_upload_data: any = await new Promise((resolve) => {

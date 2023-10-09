@@ -5,8 +5,8 @@ import User from "../../../database/models/user"
 import speakeasy from "speakeasy";
 const { compareSync, hashSync  } = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
-
+import { login2faEmail } from "../common/login2fa";
+import { baseTemplateEmail } from "../common/base.template.email";
 
 class AuthController{
 
@@ -37,16 +37,19 @@ class AuthController{
                 msg: "Email not found"
             });
         }
-        if(user.role=='distributor' && user.isAccepted==false){
-            return res.status(401).json({
-                msg: "distributor is not accepted"
-            });
-        }
+
         if(compareSync(req.body.password, user.password)==false){
             return res.status(401).json({
                 msg: "Password Incorrect"
             });
         }
+
+        if(user.role=='distributor' && user.isAccepted==false){
+            return res.status(401).json({
+                msg: "distributor is not accepted"
+            });
+        }
+        
         
         const payload={
             username: user.username,
@@ -67,17 +70,37 @@ class AuthController{
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-              user: 'forevercp110@gmail.com',
-              pass: 'djxa fjak svyi ouyp',
+              user: '8glivofficial@gmail.com',
+              pass: 'bxww dati zftn koeb',
             },
           });
           
           // Compose the email
+          
+          const temp = `
+            <!-- Content Start -->
+            <div>
+                <div style=" text-align: center;top: 416px;padding: 27px;text-align: center;font-family: 'Poppins',sans-serif !important;margin: auto;color: #354052;opacity: 100%;line-height: 52px;font-size: 36px;font-weight: 700;">
+                    OTP Verification Code 
+                </div>
+                <div style=" text-align: center;padding: 10px;top: 549px;text-align: center;font-family: 'Poppins',sans-serif !important;margin: auto;color: #354052;opacity: 100%;line-height: 26px;font-size: 18px;font-weight: 500;">
+                Please enter this OTP in the designated field on the login page to proceed with your login. 
+                <div style="text-align: center;font-weight:bold; line-height: 80px; ">
+                        This code will expire within 10 min
+                    </div> 
+                </div>
+                <div style="text-align: center;font-size: 72px;line-height: 52px;  font-family: 'Poppins',sans-serif !important;  font-weight: 700;color:#354052; padding-bottom:37px">
+                    ${OTP}
+                </div>
+            </div>
+            <!-- Content End -->
+            `;
+          const login2faEmail = baseTemplateEmail.replace('{{contentBody}}', temp);
           const mailOptions = {
-            from: 'forevercp110@gmail.com',
-            to: 'praveen.vemavarapu@gytworkz.com',
+            from: '8glivofficial@gmail.com',
+            to: req.body.toMail,
             subject: 'Your OTP Code',
-            html: `<p>Your OTP code is: ${OTP} </p>`, // Include the OTP here
+            html: login2faEmail, // Include the OTP here
           };
 
                 // Send the email
@@ -88,7 +111,7 @@ class AuthController{
             });
             } else {
                 return res.status(200).json({
-                    info
+                    secret
                 })
             }
         });

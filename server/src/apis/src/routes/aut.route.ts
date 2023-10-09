@@ -43,7 +43,7 @@ router.post("/api/v1/login1",authMiddleware,async (req : any, res : any)=>{
     }
 });
 
-router.get("/api/v1/sendOTP",async (req:any , res: any)=>{
+router.post("/api/v1/sendOTP",async (req:any , res: any)=>{
 
     try{
         return AuthController.sendOTP(req,res);
@@ -53,5 +53,16 @@ router.get("/api/v1/sendOTP",async (req:any , res: any)=>{
         })
     }
 });
+
+router.post("/api/v1/verifyOTP",async (req:any , res: any)=>{
+
+    try{
+        return AuthController.verifyOTP(req,res);
+    }catch(err :any){
+        res.status(500).json({
+            error: err.message
+        })
+    }
+})
 
 export {router as AuthRouter}
